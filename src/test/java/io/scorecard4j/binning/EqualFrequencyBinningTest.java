@@ -32,7 +32,7 @@ public class EqualFrequencyBinningTest extends TestCase {
      * numeric data test
      */
     public void testNumeric() {
-        Double[] values = new Double[] { 1.0, 2.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0 };
+        Double[] values = new Double[] { 1.0, 2.0, 2.0, 3.0, 9.0, 8.0, 7.0, 6.0, 5.0, 4.0 };
         int[] clzz = new int[] { 0, 1, 1, 2, 2, 2, 2, 2, 2, 2 };
         int bins = 3;
 
@@ -40,18 +40,22 @@ public class EqualFrequencyBinningTest extends TestCase {
         binning.findBinning(values, clzz, true);
 
         Bin bin = null;
-        bin = binning.getBinning(1.0, true);
+        bin = binning.getBinning(1.0, true);        
         assertTrue(((NumericBin) bin).getSampleClassCounts(0) == 1);
         assertTrue(((NumericBin) bin).getSampleCount() == 3);
+        assertTrue(((NumericBin) bin).getLow() == Double.NEGATIVE_INFINITY);
 
         bin = binning.getBinning(4.0, true);
         assertTrue(((NumericBin) bin).getSampleClassCounts(0) == 0);
         assertTrue(((NumericBin) bin).getSampleClassCounts(1) == 0);
         assertTrue(((NumericBin) bin).getSampleCount() == 3);
+        assertTrue(((NumericBin) bin).getLow() == 3.0);
+        assertTrue(((NumericBin) bin).getHigh() == 6.0);
 
         bin = binning.getBinning(10.0, true);
         assertTrue(((NumericBin) bin).getSampleClassCounts(2) == 4);
         assertTrue(((NumericBin) bin).getSampleCount() == 4);
+        assertTrue(((NumericBin) bin).getLow() == 6.0);
     }
 
     /**
