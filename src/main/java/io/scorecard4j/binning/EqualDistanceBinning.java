@@ -118,9 +118,7 @@ public class EqualDistanceBinning<T> implements FeatureBinning<T> {
                         categoryBins.add(new CategoryBin(cats));
                         cats = new ArrayList<Integer>();
                         curBinSize = 0;
-                    } else {
-                        curBinSize++;
-                    }
+                    } 
                 }
             }
         }
@@ -129,7 +127,7 @@ public class EqualDistanceBinning<T> implements FeatureBinning<T> {
         //
         for (int i = 0; i < values.length; i++) {
             T t = values[i];
-            Bin bin = getBinning(t, clzz[i], numeric);
+            Bin bin = getBinning(t, numeric);
             bin.addToBin();
             bin.addClassToBin(clzz[i]);
         }
@@ -137,7 +135,7 @@ public class EqualDistanceBinning<T> implements FeatureBinning<T> {
         return true;
     }
 
-    public Bin getBinning(T value, int clz, boolean numeric) {
+    public Bin getBinning(T value, boolean numeric) {
         if (numeric) {
             if (value != null && value instanceof Double) {
                 for (NumericBin bin : numericBins) {

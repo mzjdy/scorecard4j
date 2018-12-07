@@ -40,11 +40,11 @@ public class EqualDistanceBinningTest extends TestCase {
         binning.findBinning(values, clzz, true);
 
         Bin bin = null;
-        bin = binning.getBinning(1.5, 0, true);
+        bin = binning.getBinning(1.5, true);
         assertTrue(((NumericBin) bin).getLow() == Double.NEGATIVE_INFINITY);
         assertTrue(((NumericBin) bin).getSampleCount() == 2);
 
-        bin = binning.getBinning(10.5, 1, true);
+        bin = binning.getBinning(10.5, true);
         assertTrue(((NumericBin) bin).getHigh() == Double.POSITIVE_INFINITY);
         assertTrue(((NumericBin) bin).getSampleCount() == 1);
     }
@@ -61,13 +61,36 @@ public class EqualDistanceBinningTest extends TestCase {
         binning.findBinning(values, clzz, false);
 
         Bin bin = null;
-        bin = binning.getBinning(1, 0, false);
+        bin = binning.getBinning(1, false);
         assertTrue(((CategoryBin) bin).getSampleClassCounts(0) == 1);
 
-        bin = binning.getBinning(2, 1, false);
+        bin = binning.getBinning(2, false);
+        assertTrue(((CategoryBin) bin).getSampleClassCounts(1) == 2);
+        assertTrue(((CategoryBin) bin).getSampleCount() == 2);
+
+        bin = binning.getBinning(3, false);
+        assertTrue(((CategoryBin) bin).getSampleClassCounts(2) == 1);
+    }
+
+    /**
+     * category data test2
+     */
+    public void testCategory2() {
+        Integer[] values = new Integer[] { 1, 2, 2, 3, 3, 1};
+        int[] clzz = new int[] { 0, 1, 1, 2, 2, 0 };
+        int bins = 3;
+
+        EqualDistanceBinning<Integer> binning = new EqualDistanceBinning<Integer>(bins);
+        binning.findBinning(values, clzz, false);
+
+        Bin bin = null;
+        bin = binning.getBinning(1, false);
+        assertTrue(((CategoryBin) bin).getSampleClassCounts(0) == 2);
+
+        bin = binning.getBinning(2, false);
         assertTrue(((CategoryBin) bin).getSampleClassCounts(1) == 2);
 
-        bin = binning.getBinning(3, 2, false);
-        assertTrue(((CategoryBin) bin).getSampleClassCounts(2) == 1);
+        bin = binning.getBinning(3, false);
+        assertTrue(((CategoryBin) bin).getSampleClassCounts(2) == 2);
     }
 }

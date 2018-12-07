@@ -17,7 +17,7 @@ public class ChiMergeBinning<T> implements FeatureBinning<T>{
         return false;
     }
 
-    public Bin getBinning(T value, int clz, boolean numeric) {
+    public Bin getBinning(T value, boolean numeric) {
         return null;
     }
     

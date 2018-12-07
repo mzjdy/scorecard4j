@@ -3,6 +3,8 @@ package io.scorecard4j.binning.bin;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Category feature bin 
@@ -54,6 +56,11 @@ public class CategoryBin extends Bin{
      */
     public Set<Integer> getCategories() {
         return categories;
+    }
+    
+    @Override
+    public String toString() {
+        return "categoryBin[" + categories.stream().map(n -> String.valueOf(n)).collect(Collectors.joining(",")) + "]";
     }
 
 }

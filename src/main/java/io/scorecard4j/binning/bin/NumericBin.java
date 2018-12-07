@@ -54,4 +54,8 @@ public class NumericBin extends Bin{
         return high;
     }
     
+    @Override
+    public String toString() {
+        return "numericBin[" + low + "," + high + ")";
+    }
 }

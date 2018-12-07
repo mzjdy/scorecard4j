@@ -22,9 +22,8 @@ public interface FeatureBinning <T> {
     /**
      * get the binned result for given feature value
      * @param value feature value to be binned
-     * @param clz class labels for the feature value
      * @param numeric true if numeric feature otherwise false, i.e.,categorical 
      * @return the appropriate bin for the given value
      */
-    Bin getBinning(T value, int clz, boolean numeric);
+    Bin getBinning(T value, boolean numeric);
 }
