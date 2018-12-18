@@ -2,6 +2,7 @@ package io.scorecard4j.binning;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import io.scorecard4j.binning.bin.Bin;
 import io.scorecard4j.binning.bin.CategoryBin;
@@ -24,34 +25,52 @@ public class ProvidedBinning<T> implements FeatureBinning<T>{
      * 
      * @param catBins
      *            provided category bins
+     * @param clzz
+     *            provided class labels of samples
      */
-    public ProvidedBinning(int[][] catBins) {
+    public ProvidedBinning(int[][] catBins, int[][] clzz) {
         this.bins = catBins.length;
         categoryBins = new ArrayList<CategoryBin>(this.bins);
-        for(int[] cats : catBins) {
-            categoryBins.add(new CategoryBin(cats));
+        for (int i = 0; i < catBins.length; i++) {
+            int[] cats = catBins[i];
+            CategoryBin bin = new CategoryBin(cats);
+            int[] clz = clzz[i];
+            for (int j = 0; j < clz.length; j++) {
+                bin.addToBin();
+                bin.addClassToBin(clz[j]);
+            }
+            categoryBins.add(bin);
         }
     }
-    
+
     /**
      * constructor for numeric value binning
      * 
      * @param numSplits
      *            provided numerical splits
+     * @param clzz
+     *            provided class labels of samples
      */
-    public ProvidedBinning(double[] numSplits) {
+    public ProvidedBinning(double[] numSplits, int[][] clzz) {
         this.bins = numSplits.length + 1;
         numericBins = new ArrayList<NumericBin>(this.bins);
         int[] sortedIdx = QuickSort.sort(numSplits);
-        for(int i = 0;i < sortedIdx.length;i++) {
-            double split = numSplits[sortedIdx[i]];
-            if(i == 0) {
-                numericBins.add(new NumericBin(Double.NEGATIVE_INFINITY, (Double) split));              
-            }else if(i == sortedIdx.length - 1) {
-                numericBins.add(new NumericBin((Double) split, Double.POSITIVE_INFINITY));               
-            }else {
-                numericBins.add(new NumericBin((Double) numSplits[sortedIdx[i - 1]], (Double) split));
+        for (int i = 0; i <= sortedIdx.length; i++) {
+            double split = numSplits[sortedIdx[i == sortedIdx.length? i - 1 : i]];
+            NumericBin bin = null;
+            if (i == 0) {
+                bin = new NumericBin(Double.NEGATIVE_INFINITY, (Double) split);
+            } else if (i == sortedIdx.length) {
+                bin = new NumericBin((Double) split, Double.POSITIVE_INFINITY);
+            } else {
+                bin = new NumericBin((Double) numSplits[sortedIdx[i - 1]], (Double) split);
             }
+            int[] clz = clzz[i];
+            for (int j = 0; j < clz.length; j++) {
+                bin.addToBin();
+                bin.addClassToBin(clz[j]);
+            }
+            numericBins.add(bin);
         }
     }
     
