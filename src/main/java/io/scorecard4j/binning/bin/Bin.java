@@ -58,4 +58,11 @@ public abstract class Bin{
     public int getSampleClassCounts(int clz) {
         return sampleClassCounts.get(clz) == null? 0 : sampleClassCounts.get(clz).intValue();
     }
+    
+    /**
+     * get sample counts in this bin
+     */
+    public Map<Integer, AtomicInteger> getSampleClassCounts() {
+        return sampleClassCounts;
+    }
 }

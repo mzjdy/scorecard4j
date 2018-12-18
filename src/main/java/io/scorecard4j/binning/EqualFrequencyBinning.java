@@ -35,6 +35,7 @@ public class EqualFrequencyBinning<T> implements FeatureBinning<T> {
         this.bins = bins;
     }
 
+    @Override
     public boolean findBinning(T[] values, int[] clzz, boolean numeric) {
         //
         // generate appropriate bins
@@ -69,11 +70,9 @@ public class EqualFrequencyBinning<T> implements FeatureBinning<T> {
                 }
                 int[] sortedIndex = QuickSort.sort(unsortedValues);
                 Double min = null;
-                Double max = null;
                 int curBinSize = 0;
                 for (int i = 0; i < sortedIndex.length; i++) {
                     min = min == null ? unsortedValues[i] : min;
-                    max = unsortedValues[i];
                     curBinSize++;
                     if (completeBin == bins - 1) {
                         numericBins.add(new NumericBin((Double) min, Double.POSITIVE_INFINITY));
@@ -179,6 +178,7 @@ public class EqualFrequencyBinning<T> implements FeatureBinning<T> {
         return true;
     }
 
+    @Override
     public Bin getBinning(T value, boolean numeric) {
         if (numeric) {
             if (value != null && value instanceof Double) {
@@ -199,6 +199,16 @@ public class EqualFrequencyBinning<T> implements FeatureBinning<T> {
             }
             throw new IllegalArgumentException("unsupported categorical value:" + value);
         }
+    }
+
+    @Override
+    public List<NumericBin> getNumericBins() {
+        return numericBins;  
+    }
+
+    @Override
+    public List<CategoryBin> getCategoryBins() {
+        return categoryBins;  
     }
 
 }

@@ -32,6 +32,7 @@ public class EqualDistanceBinning<T> implements FeatureBinning<T> {
         this.bins = bins;
     }
 
+    @Override
     public boolean findBinning(T[] values, int[] clzz, boolean numeric) {
         //
         // generate appropriate bins
@@ -135,6 +136,7 @@ public class EqualDistanceBinning<T> implements FeatureBinning<T> {
         return true;
     }
 
+    @Override
     public Bin getBinning(T value, boolean numeric) {
         if (numeric) {
             if (value != null && value instanceof Double) {
@@ -155,6 +157,16 @@ public class EqualDistanceBinning<T> implements FeatureBinning<T> {
             } 
             throw new IllegalArgumentException("unsupported categorical value:" + value);
         }
+    }
+
+    @Override
+    public List<NumericBin> getNumericBins() {
+        return numericBins;  
+    }
+
+    @Override
+    public List<CategoryBin> getCategoryBins() {
+        return categoryBins;  
     }
 
 }

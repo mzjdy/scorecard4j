@@ -2,7 +2,6 @@ package io.scorecard4j.binning;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import io.scorecard4j.binning.bin.Bin;
 import io.scorecard4j.binning.bin.CategoryBin;
@@ -73,11 +72,13 @@ public class ProvidedBinning<T> implements FeatureBinning<T>{
             numericBins.add(bin);
         }
     }
-    
+
+    @Override
     public boolean findBinning(T[] values, int[] clzz, boolean numeric) {
         throw new RuntimeException("ProvidedBinning is initialized via constructor");
     }
 
+    @Override
     public Bin getBinning(T value, boolean numeric) {
         if (numeric) {
             if (value != null && value instanceof Double) {
@@ -98,6 +99,16 @@ public class ProvidedBinning<T> implements FeatureBinning<T>{
             } 
             throw new IllegalArgumentException("unsupported categorical value:" + value);
         }
+    }
+
+    @Override
+    public List<NumericBin> getNumericBins() {
+        return numericBins;  
+    }
+
+    @Override
+    public List<CategoryBin> getCategoryBins() {
+        return categoryBins;  
     }
     
 }
