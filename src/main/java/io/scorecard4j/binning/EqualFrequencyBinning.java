@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.scorecard4j.binning.bin.Bin;
 import io.scorecard4j.binning.bin.CategoryBin;
 import io.scorecard4j.binning.bin.NumericBin;
 import smile.sort.QuickSort;
@@ -19,11 +18,7 @@ import smile.sort.QuickSort;
  * @author rayeaster
  *
  */
-public class EqualFrequencyBinning<T> implements FeatureBinning<T> {
-
-    private int bins = 0;
-    private List<NumericBin> numericBins = null;
-    private List<CategoryBin> categoryBins = null;
+public class EqualFrequencyBinning<T> extends AbstractBinning<T> implements FeatureBinning<T> {
 
     /**
      * constructor
@@ -36,7 +31,7 @@ public class EqualFrequencyBinning<T> implements FeatureBinning<T> {
     }
 
     @Override
-    public boolean findBinning(T[] values, int[] clzz, boolean numeric) {
+    public boolean findBinning(T[] values, int[] clzz, int goodLabel, boolean numeric) {
         //
         // generate appropriate bins
         //
@@ -165,50 +160,10 @@ public class EqualFrequencyBinning<T> implements FeatureBinning<T> {
                 }
             }
         }
-        //
-        // update binning statistic
-        //
-        for (int i = 0; i < values.length; i++) {
-            T t = values[i];
-            Bin bin = getBinning(t, numeric);
-            bin.addToBin();
-            bin.addClassToBin(clzz[i]);
-        }
+        
+        finalizeBinning(values, clzz, goodLabel, numeric);
 
         return true;
-    }
-
-    @Override
-    public Bin getBinning(T value, boolean numeric) {
-        if (numeric) {
-            if (value != null && value instanceof Double) {
-                for (NumericBin bin : numericBins) {
-                    if (bin.inThisBin((Double) value)) {
-                        return bin;
-                    }
-                }
-            }
-            throw new IllegalArgumentException("unsupported numeric value:" + value);
-        } else {
-            if (value != null && value instanceof Integer) {
-                for (CategoryBin bin : categoryBins) {
-                    if (bin.inThisBin((Integer) value)) {
-                        return bin;
-                    }
-                }
-            }
-            throw new IllegalArgumentException("unsupported categorical value:" + value);
-        }
-    }
-
-    @Override
-    public List<NumericBin> getNumericBins() {
-        return numericBins;  
-    }
-
-    @Override
-    public List<CategoryBin> getCategoryBins() {
-        return categoryBins;  
     }
 
 }

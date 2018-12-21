@@ -1,5 +1,11 @@
 package io.scorecard4j.binning.bin;
 
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+import io.scorecard4j.util.NumberFormatUtil;
+
 /**
  * Numeric feature bin 
  * 
@@ -8,15 +14,17 @@ package io.scorecard4j.binning.bin;
  */
 public class NumericBin extends Bin{
     
+    private String s;
+    
     /**
      * inclusive lower bound of this bin
      */
-    double low;
+    private double low = Double.NEGATIVE_INFINITY;
     
     /**
      * exclusive upper bound of this bin 
      */
-    double high;
+    private double high = Double.NEGATIVE_INFINITY;
 
     /**
      * constructor
@@ -27,6 +35,7 @@ public class NumericBin extends Bin{
         super();
         this.low = low;
         this.high = high;
+        this.s = "numericBin[" + NumberFormatUtil.formatTo2DigitsAfterDecimal(low) + "," + NumberFormatUtil.formatTo2DigitsAfterDecimal(high) + ")";
     }
     
     /**
@@ -56,6 +65,29 @@ public class NumericBin extends Bin{
     
     @Override
     public String toString() {
-        return "numericBin[" + low + "," + high + ")";
+        return s;
+    }
+        
+    /**
+     * merge with another {@link NumericBin}
+     * @param bin {@link NumericBin} to be merged
+     * @return {@link NumericBin} after merge
+     */
+    public NumericBin merge(NumericBin bin) {
+        this.low = (this.low <= bin.low)? this.low : bin.low;
+        this.high = (this.high >= bin.high)? this.high : bin.high;
+        
+        this.sampleCount += bin.sampleCount;
+        for(Entry<Integer, AtomicInteger> ent : bin.sampleClassCounts.entrySet()) {
+            Integer key = ent.getKey();
+            if(this.sampleClassCounts.containsKey(key)) {
+                this.sampleClassCounts.get(key).addAndGet(ent.getValue().intValue());
+            }else {
+                this.sampleClassCounts.put(key, ent.getValue()); 
+            }
+        }
+        
+        this.s = "numericBin[" + NumberFormatUtil.formatTo2DigitsAfterDecimal(low) + "," + NumberFormatUtil.formatTo2DigitsAfterDecimal(high) + ")";
+        return this;
     }
 }

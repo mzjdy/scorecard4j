@@ -3,8 +3,9 @@ package io.scorecard4j.binning.bin;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Category feature bin 
@@ -14,10 +15,12 @@ import java.util.stream.Stream;
  */
 public class CategoryBin extends Bin{
     
+    private String s;
+    
     /**
      * categories for this bin
      */
-    Set<Integer> categories;
+    private Set<Integer> categories;
 
     /**
      * constructor
@@ -29,6 +32,7 @@ public class CategoryBin extends Bin{
         for(int cat : categories) {
             this.categories.add(cat);            
         }
+        s = "categoryBin[" + this.categories.stream().map(n -> String.valueOf(n)).collect(Collectors.joining(",")) + "]";
     }
 
     /**
@@ -39,6 +43,7 @@ public class CategoryBin extends Bin{
         super();
         this.categories = new HashSet<Integer>();
         this.categories.addAll(categories);
+        this.s = "categoryBin[" + this.categories.stream().map(n -> String.valueOf(n)).collect(Collectors.joining(",")) + "]";
     }
     
     /**
@@ -60,7 +65,29 @@ public class CategoryBin extends Bin{
     
     @Override
     public String toString() {
-        return "categoryBin[" + categories.stream().map(n -> String.valueOf(n)).collect(Collectors.joining(",")) + "]";
+        return s;
+    }
+    
+    /**
+     * merge with another {@link CategoryBin}
+     * @param bin {@link CategoryBin} to be merged
+     * @return {@link CategoryBin} after merge
+     */
+    public CategoryBin merge(CategoryBin bin) {
+        this.categories.addAll(bin.getCategories());
+        
+        this.sampleCount += bin.sampleCount;
+        for(Entry<Integer, AtomicInteger> ent : bin.sampleClassCounts.entrySet()) {
+            Integer key = ent.getKey();
+            if(this.sampleClassCounts.containsKey(key)) {
+                this.sampleClassCounts.get(key).addAndGet(ent.getValue().intValue());
+            }else {
+                this.sampleClassCounts.put(key, ent.getValue()); 
+            }
+        }
+        
+        this.s = "categoryBin[" + this.categories.stream().map(n -> String.valueOf(n)).collect(Collectors.joining(",")) + "]";
+        return this;
     }
 
 }

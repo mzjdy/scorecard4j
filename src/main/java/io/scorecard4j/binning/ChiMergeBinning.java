@@ -1,17 +1,13 @@
 package io.scorecard4j.binning;
 
-import java.util.List;
-
 import io.scorecard4j.binning.bin.Bin;
-import io.scorecard4j.binning.bin.CategoryBin;
-import io.scorecard4j.binning.bin.NumericBin;
 
 /**
  * Merge adjacent interval which has minimum chi-squared test.
  * @author rayeaster
  *
  */
-public class ChiMergeBinning<T> implements FeatureBinning<T>{
+public class ChiMergeBinning<T> extends AbstractBinning<T> implements FeatureBinning<T>{
 
     public ChiMergeBinning() {
         
@@ -23,16 +19,6 @@ public class ChiMergeBinning<T> implements FeatureBinning<T>{
 
     public Bin getBinning(T value, boolean numeric) {
         return null;
-    }
-
-    @Override
-    public List<NumericBin> getNumericBins() {
-        return null;  
-    }
-
-    @Override
-    public List<CategoryBin> getCategoryBins() {
-        return null;  
     }
     
 }

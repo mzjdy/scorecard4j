@@ -37,7 +37,7 @@ public class WoeIvCalculatorTest extends TestCase {
      */
     public void testNumeric() {
 
-        ProvidedBinning<Double> binning = new ProvidedBinning<Double>(new double[] {4.0, 7.0, 10.0}, new int[][] {{0, 1}, {0, 1}, {0, 1, 1}, {0, 1, 1}});
+        ProvidedBinning<Double> binning = new ProvidedBinning<Double>(new double[] {4.0, 7.0, 10.0}, new int[][] {{0, 1}, {0, 1}, {0, 1, 1}, {0, 1, 1}}, 1);
 
         FeatureWoe fw = WoeIvCalculator.calculation(binning, 1, true);         
         List<? extends Bin> bins = fw.bins();
@@ -59,7 +59,7 @@ public class WoeIvCalculatorTest extends TestCase {
      * category data test
      */
     public void testCategory() {
-        ProvidedBinning<Integer> binning = new ProvidedBinning<Integer>(new int[][] {{1}, {2}, {3}}, new int[][] {{0, 1}, {0, 1}, {0, 1, 1}});
+        ProvidedBinning<Integer> binning = new ProvidedBinning<Integer>(new int[][] {{1}, {2}, {3}}, new int[][] {{0, 1}, {0, 1}, {0, 1, 1}}, 1);
 
         FeatureWoe fw = WoeIvCalculator.calculation(binning, 1, false);         
         List<? extends Bin> bins = fw.bins();

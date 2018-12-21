@@ -1,5 +1,6 @@
 package io.scorecard4j.transformation.woe;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,6 +44,24 @@ public class WoeIvCalculator {
             return new FeatureWoe(bins, goodLabel);
         }
     }
+    
+    /**
+     * check whether bin has meaningful valid good and bad ratio for possible merge
+     * @param goodCount good sample in the target bin
+     * @param goodTotal good sample total
+     * @param badCount bad sample in the target bin
+     * @param badTotal bad sample total
+     * @return true if this bin has meaningful good and bad ratio
+     */
+    public static boolean validRatio(int goodCount, int goodTotal, int badCount, int badTotal) {
+        double goodRatio = (double) goodCount / (double) goodTotal;
+        double badRatio = (double) badCount / (double) badTotal;
+        if (goodRatio <= ratioAlert || badRatio <= ratioAlert) {
+            return false;
+        }else {
+            return true;
+        }
+    }
 
     /**
      * WOE and IV wrapper for a feature
@@ -53,6 +72,7 @@ public class WoeIvCalculator {
     public static class FeatureWoe {
 
         private List<? extends Bin> bins;
+        private Map<String, Integer> binMapping;
         private int[] goodCounts;
         private int[] badCounts;
         private int goodTotal;
@@ -72,12 +92,16 @@ public class WoeIvCalculator {
          */
         public FeatureWoe(List<? extends Bin> bins, int goodLabel) {
             this.bins = bins;
+            this.binMapping = new HashMap<String, Integer>();
+            
             goodCounts = new int[bins.size()];
             badCounts = new int[bins.size()];
             woes = new double[bins.size()];
 
             for (int i = 0; i < bins.size(); i++) {
                 Bin bin = bins.get(i);
+                binMapping.put(bin.toString(), i);
+                
                 Map<Integer, AtomicInteger> sampleClassCnts = bin.getSampleClassCounts();
 
                 int gc = 0;
@@ -119,6 +143,20 @@ public class WoeIvCalculator {
 
         public double[] woe() {
             return woes;
+        }
+
+        /**
+         * return calculated WOE for given bin
+         * @param bin the binning for retrieve WOE result
+         * @return calculated WOE for given bin
+         */
+        public double woe(Bin bin) {
+            Integer idx = binMapping.get(bin.toString());
+            if(idx != null) {
+                return woes[idx];                
+            }else {
+                throw new RuntimeException("NotFound WOE for bin:" + bin.toString());
+            }
         }
 
         public double iv() {

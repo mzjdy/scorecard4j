@@ -18,10 +18,11 @@ public interface FeatureBinning <T> {
      * find binning for given feature values
      * @param values feature values to be binned
      * @param clzz class labels for each feature values
+     * @param goodLabel good sample class label
      * @param numeric true if numeric feature otherwise false, i.e.,categorical 
      * @return true if binning successfully found otherwise false
      */
-    boolean findBinning(T[] values, int[] clzz, boolean numeric);
+    boolean findBinning(T[] values, int[] clzz, int goodLabel, boolean numeric);
     
     /**
      * get the binned result for given feature value

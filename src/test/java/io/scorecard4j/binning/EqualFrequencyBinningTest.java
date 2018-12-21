@@ -37,7 +37,7 @@ public class EqualFrequencyBinningTest extends TestCase {
         int bins = 3;
 
         EqualFrequencyBinning<Double> binning = new EqualFrequencyBinning<Double>(bins);
-        binning.findBinning(values, clzz, true);
+        binning.findBinning(values, clzz, 2, true);
 
         Bin bin = null;
         bin = binning.getBinning(1.0, true);        
@@ -67,7 +67,7 @@ public class EqualFrequencyBinningTest extends TestCase {
         int bins = 3;
 
         EqualFrequencyBinning<Integer> binning = new EqualFrequencyBinning<Integer>(bins);
-        binning.findBinning(values, clzz, false);
+        binning.findBinning(values, clzz, 2, false);
 
         Bin bin = null;
         bin = binning.getBinning(1, false);
@@ -92,7 +92,7 @@ public class EqualFrequencyBinningTest extends TestCase {
         int bins = 2;
 
         EqualFrequencyBinning<Integer> binning = new EqualFrequencyBinning<Integer>(bins);
-        binning.findBinning(values, clzz, false);
+        binning.findBinning(values, clzz, 2, false);
 
         Bin bin = null;
         bin = binning.getBinning(1, false);

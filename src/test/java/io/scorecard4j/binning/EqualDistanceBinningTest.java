@@ -37,7 +37,7 @@ public class EqualDistanceBinningTest extends TestCase {
         int bins = 3;
 
         EqualDistanceBinning<Double> binning = new EqualDistanceBinning<Double>(bins);
-        binning.findBinning(values, clzz, true);
+        binning.findBinning(values, clzz, 1, true);
 
         Bin bin = null;
         bin = binning.getBinning(1.5, true);
@@ -63,7 +63,7 @@ public class EqualDistanceBinningTest extends TestCase {
         int bins = 3;
 
         EqualDistanceBinning<Integer> binning = new EqualDistanceBinning<Integer>(bins);
-        binning.findBinning(values, clzz, false);
+        binning.findBinning(values, clzz, 2, false);
 
         Bin bin = null;
         bin = binning.getBinning(1, false);
@@ -86,7 +86,7 @@ public class EqualDistanceBinningTest extends TestCase {
         int bins = 2;
 
         EqualDistanceBinning<Integer> binning = new EqualDistanceBinning<Integer>(bins);
-        binning.findBinning(values, clzz, false);
+        binning.findBinning(values, clzz, 2, false);
 
         Bin bin = null;
         bin = binning.getBinning(1, false);
