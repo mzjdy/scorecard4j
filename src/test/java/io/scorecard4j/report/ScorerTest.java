@@ -163,8 +163,9 @@ public class ScorerTest extends TestCase {
             binnings.put(4, ProvidedBinning.numericBuilder(new double[] {0, 1, 3}, raw.column(4).vector(), yInt, goodLabel));
             
             LRModeler modeler = new LRModeler(raw, binnings, goodLabel);
+            modeler.test(raw, goodLabel);
+
             Scorer scorer = new Scorer(600, 20, 20, modeler);
-            
             System.out.println(scorer.toString());
             
         } catch (Exception e) {
