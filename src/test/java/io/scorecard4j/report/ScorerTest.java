@@ -9,6 +9,7 @@ import io.scorecard4j.binning.EqualFrequencyBinning;
 import io.scorecard4j.binning.FeatureBinning;
 import io.scorecard4j.binning.ProvidedBinning;
 import io.scorecard4j.training.LRModeler;
+import io.scorecard4j.util.NumberFormatUtil;
 import io.scorecard4j.util.ResponseUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -17,6 +18,7 @@ import smile.data.AttributeDataset;
 import smile.data.NumericAttribute;
 import io.scorecard4j.dataset.DelimitedTextParser;
 import io.scorecard4j.dataset.abnormal.detector.RangeAbnormalDetector;
+import io.scorecard4j.report.metrics.KSValue;
 
 /**
  * unit test for {@link Scorer}.
@@ -163,10 +165,13 @@ public class ScorerTest extends TestCase {
             binnings.put(4, ProvidedBinning.numericBuilder(new double[] {0, 1, 3}, raw.column(4).vector(), yInt, goodLabel));
             
             LRModeler modeler = new LRModeler(raw, binnings, goodLabel);
-            modeler.test(raw, goodLabel);
+            modeler.predict(raw, goodLabel);
 
             Scorer scorer = new Scorer(600, 20, 20, modeler);
             System.out.println(scorer.toString());
+            
+            double ks = KSValue.ks(raw.x(), yInt, scorer, goodLabel, raw.attributes());
+            System.out.println("Kolmogorov-Smirnov chart measure=" + NumberFormatUtil.formatTo2DigitsAfterDecimal(ks));            
             
         } catch (Exception e) {
             e.printStackTrace();

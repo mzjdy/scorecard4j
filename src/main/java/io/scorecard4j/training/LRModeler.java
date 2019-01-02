@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.scorecard4j.binning.FeatureBinning;
+import io.scorecard4j.report.metrics.KSValue;
 import io.scorecard4j.transformation.woe.WoeDatasetBuilder;
 import io.scorecard4j.transformation.woe.WoeIvCalculator.FeatureWoe;
 import io.scorecard4j.util.NumberFormatUtil;
@@ -49,14 +50,14 @@ public class LRModeler{
     }
     
     /**
-     * test against given dataset
+     * prediction against given dataset
      * 
      * @param raw
      *            dataset containing original or after imputation data
      * @param goodLabel
      *            class label as good sample
      */
-    public void test(AttributeDataset raw, int goodLabel) {
+    public void predict(AttributeDataset raw, int goodLabel) {
         AttributeDataset dataset = WoeDatasetBuilder.convert2Woe(raw, binnings, goodLabel, woes);
 
         double[][] x = dataset.x();
@@ -83,6 +84,14 @@ public class LRModeler{
      */
     public double[] getWeights() {
         return lrModel.getW();
+    }
+    
+    /**
+     * 
+     * @return {@link FeatureBinning} from the training data of this model
+     */
+    public Map<Integer, FeatureBinning> getBinnings() {
+        return binnings;
     }
 
     /**

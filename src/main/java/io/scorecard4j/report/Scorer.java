@@ -7,8 +7,10 @@ import java.util.Map;
 
 import io.scorecard4j.binning.bin.Bin;
 import io.scorecard4j.training.LRModeler;
+import io.scorecard4j.transformation.woe.WoeDatasetBuilder;
 import io.scorecard4j.transformation.woe.WoeIvCalculator.FeatureWoe;
 import io.scorecard4j.util.NumberFormatUtil;
+import smile.data.Attribute;
 
 /**
  * Scorecard builder on top of machine learning model
@@ -23,6 +25,7 @@ public class Scorer {
     private List<Map<String, Double>> scores;
     private List<List<String>> binNames;
     private Double startScore;
+    private LRModeler modeler;
 
     /**
      * constructor
@@ -43,6 +46,7 @@ public class Scorer {
 
         beta = pdo / Math.log(2);
         alpha = baseScore + beta * Math.log(baseOdds);
+        this.modeler = modeler;
 
         double[] weights = modeler.getWeights();
         Map<Integer, FeatureWoe> woes = modeler.getWoes();
@@ -67,6 +71,27 @@ public class Scorer {
                 binName.add(bin.toString());
             }
         }
+    }
+    
+    /**
+     * score a raw datum using this scorer
+     * 
+     * @param raw
+     *            datum containing original or after imputation data
+     * @param rawFeatures
+     *            datum features
+     */
+    public double score(double[] raw, Attribute[] rawFeatures) {
+        Bin[] bins = WoeDatasetBuilder.getBin4Data(raw, rawFeatures, modeler.getBinnings(), modeler.getWoes());        
+        double score = startScore;
+        
+        for(int i = 0;i < scores.size();i++) {
+            Map<String, Double> binscores = scores.get(i);
+            Bin bin = bins[i];
+            score += binscores.get(bin.toString());
+        }
+        
+        return score;
     }
 
     @Override
