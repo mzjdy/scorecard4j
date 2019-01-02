@@ -484,7 +484,7 @@ public class DelimitedTextParser {
             }
             if (abnormalValueDetected >= 0) {
                 String rowid = rowName == null ? String.valueOf(rowCnt) : rowName;
-                System.out.println("skip abnormal value of column#" + abnormalValueDetected + " at row#" + rowid);
+//                System.out.println("skip abnormal value of column#" + abnormalValueDetected + " at row#" + rowid);
                 continue;
             }
             AttributeDataset.Row datum = Double.isNaN(y) ? data.add(x) : data.add(x, y);

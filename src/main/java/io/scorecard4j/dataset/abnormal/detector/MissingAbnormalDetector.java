@@ -18,6 +18,14 @@ public class MissingAbnormalDetector implements AbnormalDetector<Double>{
     public MissingAbnormalDetector(Double missing){
         this.missing = missing;
     }
+    
+    /**
+     * constructor
+     * @param missing value indicating a missing sample
+     */
+    public MissingAbnormalDetector(){
+        
+    }
 
     @Override
     public double isAbnormal(Double value) {

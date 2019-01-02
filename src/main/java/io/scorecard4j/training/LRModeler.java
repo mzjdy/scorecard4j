@@ -30,23 +30,39 @@ public class LRModeler{
      * constructor
      * 
      * @param raw
-     *            dataset containing original or after imputation data 
+     *            dataset containing original or after imputation data
+     * @param binnings
+     *            {@link FeatureBinning} mechanisms for each attribute
+     * @param goodLabel
+     *            class label as good sample
+     */
+    public LRModeler(AttributeDataset raw, Map<Integer, FeatureBinning> binnings, int goodLabel,
+            Map<Integer, FeatureWoe> woes) {
+        this.woes = woes;
+        
+        AttributeDataset dataset = WoeDatasetBuilder.convert2Woe(raw, binnings, goodLabel, woes);
+
+        this.binnings = binnings;
+
+        int[] yInt = new int[raw.size()];
+        double[] y = new double[raw.size()];
+        ResponseUtil.transformResponse(raw, yInt, y);
+
+        lrModel = new LogisticRegression(dataset.x(), yInt);
+    }
+
+    /**
+     * constructor
+     * 
+     * @param raw
+     *            dataset containing original or after imputation data
      * @param binnings
      *            {@link FeatureBinning} mechanisms for each attribute
      * @param goodLabel
      *            class label as good sample
      */
     public LRModeler(AttributeDataset raw, Map<Integer, FeatureBinning> binnings, int goodLabel) {
-        woes = new HashMap<Integer, FeatureWoe>(binnings.size());
-        AttributeDataset dataset = WoeDatasetBuilder.convert2Woe(raw, binnings, goodLabel, woes);
-        
-        this.binnings = binnings;
-        
-        int[] yInt = new int[raw.size()];
-        double[] y = new double[raw.size()];
-        ResponseUtil.transformResponse(raw, yInt, y);
-        
-        lrModel = new LogisticRegression(dataset.x(), yInt);
+        this(raw, binnings, goodLabel, new HashMap<Integer, FeatureWoe>(binnings.size()));
     }
     
     /**

@@ -1,6 +1,5 @@
 package io.scorecard4j.transformation.woe;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import io.scorecard4j.binning.FeatureBinning;
@@ -20,12 +19,72 @@ import smile.data.AttributeVector;
  *
  */
 public class WoeDatasetBuilder {
+    
+    /**
+     * calculate WOE for given data
+     * 
+     * @param raw
+     *            dataset containing original or after imputation data
+     * @param binnings
+     *            {@link FeatureBinning} mechanisms for each attribute
+     * @param goodLabel
+     *            class label as good sample
+     * @param calculators
+     *            {@link FeatureWoe} calculator for given binnings
+     * @param yInt
+     *            class labels for sample
+     * 
+     * @return dataset with WOE feature values
+     */
+    public static void calculateWoe(AttributeDataset raw, Map<Integer, FeatureBinning> binnings, int goodLabel,
+            Map<Integer, FeatureWoe> calculators, int[] yInt) {
+
+        Attribute[] rawFeatures = raw.attributes();
+
+        //
+        // binning and WOE calculation
+        //
+        if (calculators.size() == 0) {
+            for (int i = 0; i < rawFeatures.length; i++) {
+                Attribute attr = rawFeatures[i];
+                AttributeVector column = raw.column(i);
+                boolean numeric = true;
+                if (attr.getType() == Type.NUMERIC || attr.getType() == Type.NOMINAL) {
+                    numeric = attr.getType() == Type.NUMERIC ? true : false;
+                    double[] vector = column.vector();
+                    FeatureBinning binning = binnings.get(i);
+                    if (binning instanceof ProvidedBinning) {
+                        // skip binning process
+                    } else {
+                        if (numeric) {
+                            Double[] values = new Double[vector.length];
+                            for (int j = 0; j < vector.length; j++) {
+                                values[j] = vector[j];
+                            }
+                            binning.findBinning(values, yInt, goodLabel, numeric);
+                        } else {
+                            Integer[] values = new Integer[vector.length];
+                            for (int j = 0; j < vector.length; j++) {
+                                values[j] = (int) vector[j];
+                            }
+                            binning.findBinning(values, yInt, goodLabel, numeric);
+                        }
+                    }
+                    FeatureWoe fw = WoeIvCalculator.calculation(binning, goodLabel, numeric);
+                    calculators.put(i, fw);
+                } else {
+                    throw new RuntimeException(
+                            "unsupport attribute: name=" + attr.getName() + ", type=" + attr.getType());
+                }
+            }
+        }
+    }
 
     /**
      * Transform raw dataset into WOE valued dataset
      * 
      * @param raw
-     *            dataset containing original or after imputation data 
+     *            dataset containing original or after imputation data
      * @param binnings
      *            {@link FeatureBinning} mechanisms for each attribute
      * @param goodLabel
@@ -35,54 +94,16 @@ public class WoeDatasetBuilder {
      * 
      * @return dataset with WOE feature values
      */
-    public static AttributeDataset convert2Woe(AttributeDataset raw, Map<Integer, FeatureBinning> binnings, int goodLabel, Map<Integer, FeatureWoe> calculators) {
+    public static AttributeDataset convert2Woe(AttributeDataset raw, Map<Integer, FeatureBinning> binnings,
+            int goodLabel, Map<Integer, FeatureWoe> calculators) {
 
         Attribute[] rawFeatures = raw.attributes();
-        
+
         int[] yInt = new int[raw.size()];
         double[] y = new double[raw.size()];
         ResponseUtil.transformResponse(raw, yInt, y);
-        
-        if(calculators == null) {
-           calculators = new HashMap<Integer, FeatureWoe>(binnings.size());
-        }
-        
-        //
-        // binning and WOE calculation
-        //
-        if(calculators.size() == 0) {
-            for (int i = 0; i < rawFeatures.length; i++) {
-                Attribute attr = rawFeatures[i];
-                AttributeVector column = raw.column(i);
-                boolean numeric = true;
-                if (attr.getType() == Type.NUMERIC || attr.getType() == Type.NOMINAL) {
-                    numeric = attr.getType() == Type.NUMERIC? true : false;
-                    double[] vector = column.vector();
-                    FeatureBinning binning = binnings.get(i);
-                    if(binning instanceof ProvidedBinning) {
-                        //skip binning process
-                    }else {
-                        if(numeric) {
-                            Double[] values = new Double[vector.length];
-                            for (int j = 0; j < vector.length; j++) {
-                                values[j] = vector[j];
-                            }  
-                            binning.findBinning(values, yInt, goodLabel, numeric);                     
-                        }else {
-                            Integer[] values = new Integer[vector.length];
-                            for (int j = 0; j < vector.length; j++) {
-                                values[j] = (int) vector[j];
-                            }
-                            binning.findBinning(values, yInt, goodLabel, numeric);                  
-                        }                      
-                    }
-                    FeatureWoe fw = WoeIvCalculator.calculation(binning, goodLabel, numeric);
-                    calculators.put(i, fw);
-                } else{
-                    throw new RuntimeException("unsupport attribute: name=" + attr.getName() + ", type=" + attr.getType());
-                }
-            }            
-        }
+
+        calculateWoe(raw, binnings, goodLabel, calculators, yInt);
 
         //
         // get WOE transformation
