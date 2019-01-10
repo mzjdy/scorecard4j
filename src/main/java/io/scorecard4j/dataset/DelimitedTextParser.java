@@ -319,13 +319,24 @@ public class DelimitedTextParser {
     /**
      * Parse a dataset from an input stream.
      * @param name the name of dataset.
+     * @param attributes the list attributes of data in proper order.
+     * @param stream the input stream of data.
+     * @throws java.io.FileNotFoundException
+     */
+    public AttributeDataset parse(String name, Attribute[] attributes, InputStream stream) throws IOException, ParseException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+            return parse(name, attributes, reader);
+        }
+    }
+
+    /**
+     * Parse a dataset from an input stream.
+     * @param name the name of dataset.
      * @param stream the input stream of data.
      * @throws java.io.FileNotFoundException
      */
     public AttributeDataset parse(String name, InputStream stream) throws IOException, ParseException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
-            return parse(name, null, reader);
-        }
+        return parse(name, null, stream);
     }
     
     /**

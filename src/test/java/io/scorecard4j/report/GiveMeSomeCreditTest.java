@@ -24,16 +24,17 @@ import io.scorecard4j.report.metrics.KSValue;
 import io.scorecard4j.selection.iv.IvSelector;
 
 /**
- * unit test for {@link Scorer}.
+ * unit test for {@link Scorer} with dataset:
+ * <a href="https://www.kaggle.com/c/GiveMeSomeCredit/data">GiveMeSomeCredit</a>
  */
-public class ScorerTest extends TestCase {
+public class GiveMeSomeCreditTest extends TestCase {
     /**
      * Create the test case
      *
      * @param testName
      *            name of the test case
      */
-    public ScorerTest(String testName) {
+    public GiveMeSomeCreditTest(String testName) {
         super(testName);
     }
 
@@ -41,13 +42,10 @@ public class ScorerTest extends TestCase {
      * @return the suite of tests being tested
      */
     public static Test suite() {
-        return new TestSuite(ScorerTest.class);
+        return new TestSuite(GiveMeSomeCreditTest.class);
     }
 
     /**
-     * dataset:
-     * <a href="https://www.kaggle.com/c/GiveMeSomeCredit/data">GiveMeSomeCredit</a>
-     * <p>
      * <table>
      * <tr>
      * <th>Variable Name</th>
@@ -118,70 +116,7 @@ public class ScorerTest extends TestCase {
      * <td>integer</td>
      * <tr>
      * </table>
-     */
-    public void testScorerOnGivemesomecredit() {
-        System.out.println("testing Scorer....");
-        DelimitedTextParser parser = new DelimitedTextParser();
-        try {
-            parser.setMissingValuePlaceholder("NA");
-            parser.setDelimiter(",");
-            parser.setColumnNames(true);   
-            parser.addIgnoredColumn(0);//skip index
-            parser.setResponseIndex(new NumericAttribute("SeriousDlqin2yrs"), 1);
-
-            //
-            // skip following columns:
-            // DebtRatio, MonthlyIncome, NumberOfOpenCreditLinesAndLoans, NumberRealEstateLoansOrLines, NumberOfDependents
-            // 
-            parser.addIgnoredColumn(5);
-            parser.addIgnoredColumn(6);
-            parser.addIgnoredColumn(7);
-            parser.addIgnoredColumn(9);
-            parser.addIgnoredColumn(11); 
-            
-            // add abnormal detector during parser
-            parser.addDectector(3, new RangeAbnormalDetector(1, 100));//age
-            parser.addDectector(4, new RangeAbnormalDetector(0, 80));//NumberOfTime30-59DaysPastDueNotWorse
-            parser.addDectector(8, new RangeAbnormalDetector(0, 80));//NumberOfTimes90DaysLate
-            parser.addDectector(10, new RangeAbnormalDetector(0, 80));//NumberOfTime60-89DaysPastDueNotWorse
-            
-            //
-            // parse data
-            //
-            InputStream file = ScorerTest.class.getClassLoader().getResourceAsStream("data/csv/givemesomecredit.csv");
-            AttributeDataset raw = parser.parse("givemesomecredit", file);
-            assertNotNull(raw);
-
-            int[] yInt = new int[raw.size()];
-            double[] y = new double[raw.size()];
-            ResponseUtil.transformResponse(raw, yInt, y);
-            //
-            // binning -> woe -> model -> report, with following columns:
-            // RevolvingUtilizationOfUnsecuredLines, age, NumberOfTime30-59DaysPastDueNotWorse, NumberOfTimes90DaysLate, NumberOfTime60-89DaysPastDueNotWorse
-            //
-            
-            int goodLabel = 1;//the target bad customer
-            Map<Integer, FeatureBinning> binnings = new HashMap<Integer, FeatureBinning>();
-            binnings.put(0, new EqualFrequencyBinning<Double>(4));
-            binnings.put(1, new EqualFrequencyBinning<Double>(9));
-            binnings.put(2, new EqualDistanceBinning<Double>(5));            
-            binnings.put(3, ProvidedBinning.numericBuilder(new double[] {0, 1, 3, 5}, raw.column(3).vector(), yInt, goodLabel));              
-            binnings.put(4, ProvidedBinning.numericBuilder(new double[] {0, 1, 3}, raw.column(4).vector(), yInt, goodLabel));
-            
-            LRModeler modeler = new LRModeler(raw, binnings, goodLabel);
-            modeler.predict(raw, goodLabel);
-
-            Scorer scorer = new Scorer(600, 20, 20, modeler);
-            System.out.println(scorer.toString());
-            
-            double ks = KSValue.ks(raw.x(), yInt, scorer, goodLabel, raw.attributes());
-            System.out.println("Kolmogorov-Smirnov chart measure=" + NumberFormatUtil.formatTo2DigitsAfterDecimal(ks));            
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
+     */    
     public void testIvSelector() {
         System.out.println("testing IV selector....");
         DelimitedTextParser parser = new DelimitedTextParser();
@@ -202,7 +137,7 @@ public class ScorerTest extends TestCase {
             //
             // parse data
             //
-            InputStream file = ScorerTest.class.getClassLoader().getResourceAsStream("data/csv/givemesomecredit.csv");
+            InputStream file = GiveMeSomeCreditTest.class.getClassLoader().getResourceAsStream("data/csv/givemesomecredit.csv");
             AttributeDataset raw = parser.parse("givemesomecredit", file);
             assertNotNull(raw);
 
@@ -241,6 +176,69 @@ public class ScorerTest extends TestCase {
             assertTrue(ivs[5] < 0.1); 
             assertTrue(ivs[7] < 0.1); 
             assertTrue(ivs[9] < 0.1);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }    
+
+    public void testScorer() {
+        System.out.println("testing Scorer....");
+        DelimitedTextParser parser = new DelimitedTextParser();
+        try {
+            parser.setMissingValuePlaceholder("NA");
+            parser.setDelimiter(",");
+            parser.setColumnNames(true);   
+            parser.addIgnoredColumn(0);//skip index
+            parser.setResponseIndex(new NumericAttribute("SeriousDlqin2yrs"), 1);
+
+            //
+            // skip following columns:
+            // DebtRatio, MonthlyIncome, NumberOfOpenCreditLinesAndLoans, NumberRealEstateLoansOrLines, NumberOfDependents
+            // 
+            parser.addIgnoredColumn(5);
+            parser.addIgnoredColumn(6);
+            parser.addIgnoredColumn(7);
+            parser.addIgnoredColumn(9);
+            parser.addIgnoredColumn(11); 
+            
+            // add abnormal detector during parser
+            parser.addDectector(3, new RangeAbnormalDetector(1, 100));//age
+            parser.addDectector(4, new RangeAbnormalDetector(0, 80));//NumberOfTime30-59DaysPastDueNotWorse
+            parser.addDectector(8, new RangeAbnormalDetector(0, 80));//NumberOfTimes90DaysLate
+            parser.addDectector(10, new RangeAbnormalDetector(0, 80));//NumberOfTime60-89DaysPastDueNotWorse
+            
+            //
+            // parse data
+            //
+            InputStream file = GiveMeSomeCreditTest.class.getClassLoader().getResourceAsStream("data/csv/givemesomecredit.csv");
+            AttributeDataset raw = parser.parse("givemesomecredit", file);
+            assertNotNull(raw);
+
+            int[] yInt = new int[raw.size()];
+            double[] y = new double[raw.size()];
+            ResponseUtil.transformResponse(raw, yInt, y);
+            //
+            // binning -> woe -> model -> report, with following columns:
+            // RevolvingUtilizationOfUnsecuredLines, age, NumberOfTime30-59DaysPastDueNotWorse, NumberOfTimes90DaysLate, NumberOfTime60-89DaysPastDueNotWorse
+            //
+            
+            int goodLabel = 1;//the target bad customer
+            Map<Integer, FeatureBinning> binnings = new HashMap<Integer, FeatureBinning>();
+            binnings.put(0, new EqualFrequencyBinning<Double>(4));
+            binnings.put(1, new EqualFrequencyBinning<Double>(9));
+            binnings.put(2, new EqualDistanceBinning<Double>(5));            
+            binnings.put(3, ProvidedBinning.numericBuilder(new double[] {0, 1, 3, 5}, raw.column(3).vector(), yInt, goodLabel));              
+            binnings.put(4, ProvidedBinning.numericBuilder(new double[] {0, 1, 3}, raw.column(4).vector(), yInt, goodLabel));
+            
+            LRModeler modeler = new LRModeler(raw, binnings, goodLabel);
+            modeler.predict(raw, goodLabel);
+
+            Scorer scorer = new Scorer(600, 20, 20, modeler);
+            System.out.println(scorer.toString());
+            
+            double ks = KSValue.ks(raw.x(), yInt, scorer, goodLabel, raw.attributes());
+            System.out.println("Kolmogorov-Smirnov chart measure=" + NumberFormatUtil.formatTo2DigitsAfterDecimal(ks));            
             
         } catch (Exception e) {
             e.printStackTrace();

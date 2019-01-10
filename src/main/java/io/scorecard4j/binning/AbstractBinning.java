@@ -78,7 +78,7 @@ public abstract class AbstractBinning<T> implements FeatureBinning<T>{
             }
             this.bins = numericBins.size();
         }else {
-            int[] goodBadTotals = getGoodBadTotal(numericBins, goodLabel);
+            int[] goodBadTotals = getGoodBadTotal(categoryBins, goodLabel);
             int goodTotal = goodBadTotals[0];
             int badTotal = goodBadTotals[1];
             for(int i = 0;i < categoryBins.size();i++) {
@@ -99,6 +99,10 @@ public abstract class AbstractBinning<T> implements FeatureBinning<T>{
     protected int[] getGoodBadTotal(List<? extends Bin> bins, int goodLabel) {
         int goodTotal = 0;
         int badTotal = 0;
+        
+        if(bins == null || bins.size() <= 0) {
+            throw new RuntimeException("can not get good/bad ratio due to binning failure...");
+        }
         
         for(Bin bin : bins) {
             Map<Integer, AtomicInteger> sampleCounts = bin.getSampleClassCounts();
